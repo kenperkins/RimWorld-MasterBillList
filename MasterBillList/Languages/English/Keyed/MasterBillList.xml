@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LanguageData>
+  <MasterBillList_UseSharedBills_Label>Use shared bills</MasterBillList_UseSharedBills_Label>
+  <MasterBillList_UseSharedBills_Desc>When on, this bench shares a single bill list with every other bench of the same type on this map. Edit the bills through the normal Bills tab of any subscribed bench.</MasterBillList_UseSharedBills_Desc>
+  <MasterBillList_UsingSharedBills>Using shared bills</MasterBillList_UsingSharedBills>
+</LanguageData>

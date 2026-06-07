@@ -1,0 +1,29 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net472</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <AssemblyName>MasterBillList</AssemblyName>
+    <RootNamespace>MasterBillList</RootNamespace>
+
+    <!-- Compiled DLL goes straight into the mod's Assemblies/ folder. -->
+    <OutputPath>../Assemblies/</OutputPath>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+
+    <!-- Keep Assemblies/ to just our DLL: no symbols, no copied dependencies. -->
+    <DebugType>none</DebugType>
+    <DebugSymbols>false</DebugSymbols>
+    <CopyLocalLockFileAssemblies>false</CopyLocalLockFileAssemblies>
+    <Deterministic>true</Deterministic>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.3" PrivateAssets="all" />
+    <!-- Game reference assemblies (Assembly-CSharp, UnityEngine, etc.); reference-only. -->
+    <PackageReference Include="Krafs.Rimworld.Ref" Version="1.6.*" />
+    <!-- Harmony: compile against it, but ExcludeAssets="runtime" so we DON'T ship
+         0Harmony.dll — the player's Harmony mod provides the real one at runtime. -->
+    <PackageReference Include="Lib.Harmony" Version="2.*" ExcludeAssets="runtime" />
+  </ItemGroup>
+
+</Project>
