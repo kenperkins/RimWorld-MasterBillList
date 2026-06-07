@@ -2,6 +2,8 @@
 
 A RimWorld 1.6 mod that lets workbenches of the same type **share one bill list per map**.
 
+**[Steam Workshop](https://steamcommunity.com/sharedfiles/filedetails/?id=3740399632)** · License: [MIT](LICENSE)
+
 Toggle **"Use shared bills"** on a bench, edit its bills through the normal Bills tab, and every other opted-in bench of that type reflects the change live — and works the same bills. No more re-creating the same bill on every butcher table, stove, or machining bench.
 
 ## Features
@@ -35,3 +37,7 @@ Output goes to `MasterBillList/Assemblies/MasterBillList.dll`. Uses `Krafs.Rimwo
 ## Installing locally
 
 Symlink (or copy) the `MasterBillList/` folder into your RimWorld `Mods/` directory and enable it (after Harmony) in the mod list.
+
+## License
+
+[MIT](LICENSE) — Copyright (c) 2026 Ken Perkins. Use, modify, and redistribute freely; keep the copyright notice.
