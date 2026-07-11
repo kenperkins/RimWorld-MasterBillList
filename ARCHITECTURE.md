@@ -50,6 +50,22 @@ Solution:
 
   > **Lesson 2 — `FinishUftJob` targets `bill.billStack.billGiver`, not the scanned bench.** So a shared UFT bill funnels finishing to the representative; if it's busy or being deconstructed, pawns get DoBill jobs they can't reserve (a reservation storm). `Patch_DoBill_RetargetToScannedBench` (postfix on `WorkGiver_DoBill.JobOnThing`) retargets such a job to the bench actually being scanned, which the pawn already validated it can reserve. No-op for normal bills (they already target the scanned bench).
 
-## Both lessons in one sentence
+## Orphan recovery: finishing leftover unfinished items
 
-The plan assumed "everything funnels through the `BillStack` property" and "jobs target the scanned bench" — decompiling the 1.6 `Assembly-CSharp.dll` proved both false (the UI reads the field; UFT jobs target the representative), so the design moved to a field-swap plus a UFT job-retarget. **Verify a target version's actual code before trusting an assumed mechanism.**
+Sharing one bill across parallel benches has a nasty side effect, and fixing it is the largest subsystem after sharing itself.
+
+A `Bill_ProductionWithUft` tracks exactly **one** in-progress UFT (`BoundUft`). With a shared bill worked by several benches at once, multiple pawns can pass the "is the slot free?" check in the same tick and each start a UFT — only one binds. The losers' `UnfinishedThing.BoundBill` getter sees `bill.BoundUft != this` and nulls itself out, leaving an **orphan**: a partially-built item no bill claims. Vanilla never resumes it (`WorkGiver_DoBill` only ever offers the single bound UFT; "No Job Authors" only relaxes the creator gate, not that lockout), so orphans pile up forever — the original motivation for this subsystem.
+
+`WorkGiver_FinishOrphanedUft` (a global-scan `WorkGiver_Scanner`) finds orphans and finishes them.
+
+> **Lesson 3 — you can't reuse the shared bill's slot to finish an orphan; mint a transient bill instead.** The obvious approach (bind the orphan into the live bill's `BoundUft` and let vanilla resume it) only works while that slot is free — which, under continuous production, it essentially never is. In-game diagnostics showed every bench reporting the slot occupied, so finish jobs were never issued. Instead each finish job gets its own throwaway `new Bill_ProductionWithUft(recipe)` with `billStack` borrowed from the target bench (so `Bill.DeletedOrDereferenced` stays false) and `repeatMode = Forever`. `JobDriver_DoBill` rebinds the orphan to that transient on start, so the shared slot is never touched and benches can finish orphans in parallel.
+
+Three more things that made it work:
+
+- **WorkGiver injection, not XML** (`OrphanedUftRegistry`, `[StaticConstructorOnStartup]`, same spirit as `StartupComps`): map every UFT recipe to its work type and inject one `WorkGiverDef` per type at `priorityInType` **above** `DoBill`, so finishing leftover work beats starting new (and the single-slot lockout then stops fresh orphans forming while the backlog drains). Covers modded recipes/work types by enumeration.
+- **Don't override `PotentialWorkThingRequest`.** Returning `ForGroup(Everything)` trips `GenClosest.EarlyOutSearch`'s "searching everything without restriction" guard and errors the autonomous scan every tick — while right-click still works (it bypasses `ClosestThingReachable`). The base `Undefined` request is correct when you supply a custom `PotentialWorkThingsGlobal` set (the vanilla pattern: `WorkGiver_Slaughter`, `WorkGiver_Train`).
+- **Self-heal + intent.** A UFT left bound to a spent transient (a failed job) is detected as an orphan again (its bill isn't in any stack's `Bills` list), so it gets retried. By default orphans are finished unconditionally (materials are already sunk); a mod setting instead gates on a live bill still wanting output (respects "do until you have X").
+
+## The three lessons in one sentence
+
+The plan assumed "everything funnels through the `BillStack` property," "jobs target the scanned bench," and "an orphan can rejoin its bill" — decompiling the 1.6 `Assembly-CSharp.dll` and watching the running game proved all three false (the UI reads the field; UFT jobs target the representative; the single `BoundUft` slot is occupied under load), so the design became a field-swap, a UFT job-retarget, and transient-bill orphan recovery. **Verify a target version's actual code — and observe the running game — before trusting an assumed mechanism.**

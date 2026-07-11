@@ -13,6 +13,7 @@ Toggle **"Use shared bills"** on a bench, edit its bills through the normal Bill
 - **Non-destructive** — opting out restores the bench's own original bills; nothing is ever deleted.
 - **Shared counters for free** — "Do X times" / "Do until you have X" count once across all shared benches, because they share a single bill stack.
 - **Safe save/load** — the shared lists persist correctly with no duplication.
+- **Finishes leftover unfinished items** — sharing a UFT recipe (components, sculptures, complex apparel) across benches can strand partially-made items that no bill will resume; any able crafter now completes them automatically (or right-click an unfinished item → *finish*). On by default — toggle in mod settings.
 - **Robust** — handles deconstructing the representative bench and unfinished-thing recipes (sculptures, components).
 - **Covers modded workbenches** automatically (comp is injected by type, not by hardcoded def names).
 
