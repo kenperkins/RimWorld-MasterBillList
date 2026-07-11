@@ -39,6 +39,17 @@ Output goes to `MasterBillList/Assemblies/MasterBillList.dll`. Uses `Krafs.Rimwo
 
 Symlink (or copy) the `MasterBillList/` folder into your RimWorld `Mods/` directory and enable it (after Harmony) in the mod list.
 
+## Releasing
+
+`CHANGELOG.md` is the single source of truth. To get Steam Workshop BBCode for the description/change notes, transform it rather than hand-writing a copy:
+
+```sh
+python3 tools/changelog_to_steam.py --latest | pbcopy   # newest entry, to clipboard
+python3 tools/changelog_to_steam.py                     # whole changelog
+```
+
+Then upload in-game (dev mode → Mods → Master Bill List → *Upload to Steam Workshop*) and paste.
+
 ## License
 
 [MIT](LICENSE) — Copyright (c) 2026 Ken Perkins. Use, modify, and redistribute freely; keep the copyright notice.
