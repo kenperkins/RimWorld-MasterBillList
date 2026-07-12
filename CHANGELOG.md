@@ -2,6 +2,11 @@
 
 All notable changes to **Master Bill List** are documented here.
 
+## 1.1.1 — 2026-07-12
+
+### Fixed
+- **No more "Tried to bound destroyed UnfinishedThing" error.** When two crafters were dispatched to the same leftover item in the same instant, one could finish it before the other arrived, and the latecomer would log an error trying to claim the already-finished item (harmless, but noisy — and worse with the CommonSense mod, which drops a guard vanilla has). Finish jobs now reserve the item exclusively, so the second crafter cleanly picks different work instead.
+
 ## 1.1 — 2026-07-11
 
 ### Added

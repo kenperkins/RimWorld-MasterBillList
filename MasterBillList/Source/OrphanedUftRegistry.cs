@@ -21,8 +21,15 @@ namespace MasterBillList
         public static readonly List<ThingDef> UftDefs = new List<ThingDef>();
         public static readonly Dictionary<RecipeDef, WorkTypeDef> RecipeWorkType = new Dictionary<RecipeDef, WorkTypeDef>();
 
+        // A DoBill-flavored job whose driver reserves the orphan UFT exclusively (see
+        // JobDriver_FinishOrphanedUft). Registered in DefDatabase so a saved in-progress
+        // finish job resolves its def by name on load.
+        public static JobDef FinishOrphanedUftJob { get; private set; }
+
         static OrphanedUftRegistry()
         {
+            InjectJobDef();
+
             var doBillGivers = DefDatabase<WorkGiverDef>.AllDefsListForReading
                 .Where(g => g.workType != null
                             && g.giverClass != null
@@ -53,6 +60,20 @@ namespace MasterBillList
 
             Log.Message($"[MasterBillList] Orphan recovery: mapped {RecipeWorkType.Count} UFT recipe(s) " +
                         $"across {UftDefs.Count} UFT def(s); injected {injected} WorkGiverDef(s).");
+        }
+
+        private static void InjectJobDef()
+        {
+            var def = new JobDef
+            {
+                defName = "MBL_FinishOrphanedUft",
+                driverClass = typeof(JobDriver_FinishOrphanedUft),
+                reportString = "finishing unfinished item.",
+                allowOpportunisticPrefix = true,
+                collideWithPawns = false,
+            };
+            DefDatabase<JobDef>.Add(def);
+            FinishOrphanedUftJob = def;
         }
 
         private static WorkTypeDef ResolveWorkType(RecipeDef recipe, List<WorkGiverDef> doBillGivers)

@@ -134,13 +134,15 @@ namespace MasterBillList
         // Mirrors WorkGiver_DoBill.FinishUftJob, minus the uft.Creator == pawn gate (any
         // pawn may finish) and targeting the scanned bench. JobDriver_DoBill rebinds
         // targetQueueB[0].BoundBill to job.bill on start, so the transient adopts the uft.
+        // Uses our JobDef (JobDriver_FinishOrphanedUft) rather than DoBill so the orphan is
+        // reserved exclusively — a same-tick duplicate dispatch fails instead of racing.
         private static Job MakeFinishJob(Pawn pawn, UnfinishedThing uft, Bill_ProductionWithUft bill, Building_WorkTable bench)
         {
             Job haul = WorkGiverUtility.HaulStuffOffBillGiverJob(pawn, bench, uft);
             if (haul != null && haul.targetA.Thing != uft)
                 return haul;
 
-            Job job = JobMaker.MakeJob(JobDefOf.DoBill, bench);
+            Job job = JobMaker.MakeJob(OrphanedUftRegistry.FinishOrphanedUftJob, bench);
             job.bill = bill;
             job.targetQueueB = new List<LocalTargetInfo> { uft };
             job.countQueue = new List<int> { 1 };
